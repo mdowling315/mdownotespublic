@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .text-box-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .text-box {
+            width: 30%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .text-box:nth-child(3n) {
+            margin-right: 0;  /* Remove margin for every third box */
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome {{ logname }}</h1>
+    <div class="text-box-container">
+        {% for text in cat_list %}
+            <div class="text-box">{{ text["desc"] }}</div>
+        {% endfor %}
+    </div>
+    <div>
+        <form style="position:absolute; left: 8px; margin-top: 200px;" action="/" method="post" enctype="multipart/form-data">
+            <label>New Category: </label>
+            <input type="text" name="New Category" required/>
+            <br><br>
+            <input type="submit" name="create" value="create"/>
+        </form>
+    </div>
+
+</body>
+</html>

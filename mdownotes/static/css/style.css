@@ -1,0 +1,76 @@
+.top-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px;
+}
+
+.top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+}
+
+.horizontal-box {
+    display: inline-block;
+    margin: 5px;
+}
+
+.logo-size {
+    width: auto;
+    height: 40px; /* Maintain aspect ratio */
+    display: block; /* Remove any extra space below the image */
+}
+
+.post {
+    width: 600px;
+    height: auto;
+    border: 1px solid black;
+    margin: 100px auto;
+    position: relative;
+}
+
+.post-upload {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.username {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.comment {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.userpage-post {
+    width: 200px;
+    height: auto;
+    display: block;
+}
+
+.user-relationship {
+    position: relative;
+    width: 550px;
+    margin-left: 100px;
+    border: 2px solid black;
+    margin-bottom: 30px;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+.horizontal {
+    display: flex;
+    flex-direction: row;
+}
+
+.bold {
+    font-weight: 600;
+}
