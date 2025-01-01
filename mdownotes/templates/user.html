@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+    <body style = "text-align: center;">
+        <h1> {{username}} </h1>
+        {% if logname == username %}
+                <a href="/edit/">Edit profile</a>
+            
+                <form style = "margin-top: 50px;" action="/logout/" method="post" enctype="multipart/form-data">
+                    <input type="submit" name="logout" value="Logout"/>
+                </form>
+        {% endif %}
+    </body>
+</html>

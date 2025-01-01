@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+    <body style = "text-align: center;">
+        <h1>{{logname}}</h1>
+        <form action="/accounts/?target=/create/" method="post" enctype="multipart/form-data">
+            <label> Type "Confirm Delete" to delete this account </label>
+            <input type="text" name="confirm" required/>
+            <input type="submit" name="delete" value="delete account"/>
+            <input type="hidden" name="operation" value="delete"/>
+        </form>
+    </body>
+</html>

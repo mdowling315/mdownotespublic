@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<body style = "text-align: center;"> 
+    <h1>Sign up</h1>
+    <form style="margin-top: 200px;" action="/accounts/?target=/" method="post" enctype="multipart/form-data">        
+        <label>Username: </label>
+        <input type="text" name="username" required/><br><br>
+
+        <label>Password: </label>
+        <input type="password" name="password" required/><br><br>
+        <input type="submit" name="signup" value="sign up"/><br><br><br>
+        <input type="hidden" name="operation" value="create"/>
+    </form>
+
+    <label>Have an account? </label>
+    <a href="/accounts/login/" style="font-weight: 600;">login</a>
+
+</body>
+</html>

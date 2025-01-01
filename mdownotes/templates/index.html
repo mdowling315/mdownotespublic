@@ -11,6 +11,9 @@
             margin: 0;
             padding: 0;
         }
+        a{
+            text-decoration: none;
+        }
         .text-box-container {
             display: flex;
             flex-wrap: wrap;
@@ -31,7 +34,7 @@
     </style>
 </head>
 <body>
-    <h1>Welcome {{ logname }}</h1>
+    <h1>Welcome <a href = "/users/{{logname}}/" >{{ logname }} </a></h1>
     <div class="text-box-container">
         {% for text in cat_list %}
             <a class="text-box" href= "/{{text["categoryid"]}}/">
