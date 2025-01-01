@@ -7,6 +7,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            text-align: center; /* Center all text by default */
+            margin: 0;
+            padding: 0;
         }
         .text-box-container {
             display: flex;
@@ -19,6 +22,8 @@
             border: 1px solid #ccc;
             text-align: center;
             box-sizing: border-box;
+            text-decoration: none; /* Remove the underline */
+            color: inherit; /* Use the inherited text color */
         }
         .text-box:nth-child(3n) {
             margin-right: 0;  /* Remove margin for every third box */
@@ -29,14 +34,15 @@
     <h1>Welcome {{ logname }}</h1>
     <div class="text-box-container">
         {% for text in cat_list %}
-            <div class="text-box">{{ text["desc"] }}</div>
+            <a class="text-box" href= "/{{text["categoryid"]}}/">
+            <div>{{ text["desc"] }}</div>
+            </a>
         {% endfor %}
     </div>
     <div>
         <form style="position:absolute; left: 8px; margin-top: 200px;" action="/" method="post" enctype="multipart/form-data">
             <label>New Category: </label>
             <input type="text" name="New Category" required/>
-            <br><br>
             <input type="submit" name="create" value="create"/>
         </form>
     </div>

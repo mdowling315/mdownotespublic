@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center; /* Center all text by default */
+            margin: 0;
+            padding: 0;
+        }
+        .text-box-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .text-box {
+            width: 30%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .text-box:nth-child(3n) {
+            margin-right: 0;  /* Remove margin for every third box */
+        }
+    </style>
+</head>
+<body>
+    <h1>{{category}}</h1>
+    <div class="text-box-container">
+        {% for vid in vid_list %}
+            <a class="text-box" href= "/{{categoryid}}/{{vid["url"]}}/">
+            <div>{{ vid["title"] }}</div>
+            <img src="https://img.youtube.com/vi/{{vid["url"]}}/hqdefault.jpg" alt="Couldn't find image :(">
+            </a>
+        {% endfor %}
+    </div>
+    <div style="position:absolute; left: 8px; margin-top: 200px;">
+        <form style="position:absolute; left:" action="/{{categoryid}}/" method="post" enctype="multipart/form-data">
+            <label>Add Video: </label>
+            <label>Video URL: </label>
+            <input type="text" name="url" required/>
+            <label>Title: </label>
+            <input type="text" name="title" required/>
+            <input type="submit" name="create" value="create"/>
+        </form>
+        <p style = "margin-top: 30px;"> make sure that the url you give contains "?v=" (it should, I havent seen a youtube video url that doesnt), otherwise my application will not work </p>
+        <form style="margin-top: 30px; text-align: left;" action="/delete_cat/" method="post" enctype="multipart/form-data">
+            <label> Delete Category </label> <br></br>
+            <label> Type "Confirm Delete" to delete this category </label>
+            <input type="text" name="confirm" required/>
+            <input type="hidden" name="id" value = {{categoryid}}>
+            <input type="submit" name="Delete" value="Delete">
+        </form>
+    </div>
+
+</body>
+</html>

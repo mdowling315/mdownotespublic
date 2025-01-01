@@ -12,11 +12,24 @@ VALUES
     ('Mark zuckerberg');
 INSERT INTO categories(desc)
 VALUES
-    ('John Cena');
+    ('Music');
+
+
 
 INSERT INTO videos(url,title, categoryid)
 VALUES
-    ('https://www.youtube.com/watch?v=UsCXT3-w9iQ', '#75 - Dana Linn Bailey | Cutler Cast', 1);
+    ('zwzMBSsqr_0', 'Time (from "Inception") \\ Hans Zimmer \\ Jacobs Piano', 4);
+INSERT INTO videos(url,title, categoryid)
+VALUES
+    ('6qTghUgMOeY', 'Impossible', 4);
+INSERT INTO videos(url,title, categoryid)
+VALUES
+    ('G-I9csAflBs', 'Welcome To The Black Parade', 4);
+
+INSERT INTO videos(url,title, categoryid)
+VALUES
+    --('https://www.youtube.com/watch?v=UsCXT3-w9iQ', '#75 - Dana Linn Bailey | Cutler Cast', 1);
+    ('UsCXT3-w9iQ', '#75 - Dana Linn Bailey | Cutler Cast', 1);
 
 INSERT INTO posts(text, owner, vid_timestamp, vidid)
 VALUES
