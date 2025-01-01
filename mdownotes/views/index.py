@@ -145,7 +145,7 @@ def serve_video_page(cat_id, nonce):
         "title": z[0]["title"],
         "id": cat_id
     }
-    return flask.render_template("video.html", **context)
+    return flask.render_template("video1.html", **context)
 
 @mdownotes.app.route('/login/', methods=["GET"])
 def login():
