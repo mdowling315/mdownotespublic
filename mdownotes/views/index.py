@@ -91,6 +91,10 @@ def make_video(cat_id):
     pos = url.find("&")
     if pos != -1:
         url = url[:pos]
+    
+    # the url is 100% not valid
+    if len(url) != 11:
+        flask.abort(403)
     #print("This should be just the nonce now")
     #print(url)
     

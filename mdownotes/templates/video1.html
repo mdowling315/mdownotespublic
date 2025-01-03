@@ -12,16 +12,19 @@
         display: flex;
       }
       .split {
-        flex: 1; /* Each side takes up half of the viewport width */
+        /* flex: 1;  Each side takes up half of the viewport width */ 
         height: 100%;
         display: flex; /* Enable Flexbox for centering */
         justify-content: center; /* Center horizontally */
         align-items: center; /* Center vertically */
+        flex-direction: column;
       }
       .left {
+        flex: 2;
         background-color: lightblue;
       }
       .right {
+        flex: 8;
         background-color: lightcoral;
       }
   </style>
@@ -32,7 +35,9 @@
 <body>
 <div class="split left"></div>
 <div class="split right">
-  <iframe id="youtube-player" 
+  <iframe id="youtube-player"
+          width="1120" 
+          height="630"  
           src="https://www.youtube.com/embed/{{VIDEO_ID}}?enablejsapi=1" 
           frameborder="0" 
           allow="autoplay; encrypted-media" 
