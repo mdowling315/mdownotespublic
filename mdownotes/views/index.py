@@ -149,7 +149,7 @@ def serve_video_page(cat_id, nonce):
         "title": z[0]["title"],
         "id": cat_id
     }
-    return flask.render_template("video1.html", **context)
+    return flask.render_template("video3.html", **context)
 
 @mdownotes.app.route('/login/', methods=["GET"])
 def login():
@@ -397,5 +397,22 @@ def edit_acc():
         return flask.redirect("/login/")
     context = {"logname": logname}
     return flask.render_template("edit_acc.html", **context)
+
+
+# @mdownotes.app.route("/assets/index-B0wtBSaw.js/", methods = ["GET"])
+# def serve_file():
+    
+#     return flask.send_from_directory(mdownotes.app.static_folder, "assets/index-B0wtBSaw.js")
+
+@mdownotes.app.route("/assets/<string:thing_to_get>/", methods = ["GET"])
+def serve_file1(thing_to_get):
+    print("hi")
+    print(thing_to_get)
+    return flask.send_from_directory(mdownotes.app.static_folder, "assets/" + thing_to_get)
+
+# @mdownotes.app.route("/assets/react-CHdo91hT.svg/", methods = ["GET"])
+# def serve_file2():
+    
+#     return flask.send_from_directory(mdownotes.app.static_folder, "assets/react-CHdo91hT.svg")
 
     

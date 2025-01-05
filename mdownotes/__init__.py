@@ -1,6 +1,6 @@
 import flask
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_folder='static', static_url_path='/static')
 
 
 app.config.from_object('mdownotes.config')

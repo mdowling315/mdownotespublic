@@ -1,0 +1,25 @@
+html, body, #root {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+}
+.container {
+    display: flex;
+    height: 100vh;  /* Full viewport height */
+  }
+.split {
+    /* flex: 1;  Each side takes up half of the viewport width */ 
+    height: 100%;
+    display: flex; /* Enable Flexbox for centering */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    flex-direction: column;
+}
+.left {
+    flex: 2;
+    background-color: lightblue;
+}
+.right {
+    flex: 8;
+    background-color: lightcoral;
+}

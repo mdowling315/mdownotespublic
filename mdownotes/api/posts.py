@@ -209,7 +209,7 @@ def delete_post():
 
 # deletes a comment
 @mdownotes.app.route("/api/comments/", methods=["DELETE"])
-def delete_post():
+def delete_comment():
     if "username" in flask.session:
         logname = flask.session["username"]
     else:

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Timestamp Form</title>
+    </head>
+    <body>
+        <!-- hopefully this plays first -->
+        <script>
+            const VIDEO_ID = "{{VIDEO_ID}}"; 
+            window.VIDEO_ID = VIDEO_ID;
+            const id5 =  {{id}}
+            window.id5 = id5;
+        </script>
+
+         <!-- Wait for the DOM to be loaded before loading the React app -->
+        <div id="loading">Loading React App...</div>
+        <div id="root"></div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+            // Remove the loading message
+            document.getElementById('loading').style.display = 'none';
+
+            // Dynamically load the bundle.js
+            var script = document.createElement('script');
+            script.src = "/assets/index-Bb8UX81p.js";
+            script.onload = function() {
+                // The React app will be mounted here after bundle.js is loaded
+                console.log(window.id5 + 1);
+                console.log(window.VIDEO_ID);
+                console.log('React app loaded successfully.');
+            };
+            document.body.appendChild(script);
+            });
+        </script>
+        <!-- <script type="module" crossorigin src="/assets/index-YgE2oTeF.js"></script>  -->
+        <link rel="stylesheet" crossorigin href="/assets/index-kDDLdDoo.css">
+    </body>
+</html>
