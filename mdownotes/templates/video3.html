@@ -6,6 +6,7 @@
     <title>YouTube Timestamp Form</title>
     </head>
     <body>
+        <h1 style = "text-align: center;" >{{category}} : {{title}}</h1>
         <!-- hopefully this plays first -->
         <script>
             const VIDEO_ID = "{{VIDEO_ID}}"; 
@@ -15,16 +16,16 @@
         </script>
 
          <!-- Wait for the DOM to be loaded before loading the React app -->
-        <div id="loading">Loading React App...</div>
+        <!--<div id="loading">Loading React App...</div> -->
         <div id="root"></div>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
             // Remove the loading message
-            document.getElementById('loading').style.display = 'none';
+            //document.getElementById('loading').style.display = 'none';
 
             // Dynamically load the bundle.js
             var script = document.createElement('script');
-            script.src = "/assets/index-Bb8UX81p.js";
+            script.src = "/assets/bundle.js";
             script.onload = function() {
                 // The React app will be mounted here after bundle.js is loaded
                 console.log(window.id5 + 1);
@@ -35,6 +36,6 @@
             });
         </script>
         <!-- <script type="module" crossorigin src="/assets/index-YgE2oTeF.js"></script>  -->
-        <link rel="stylesheet" crossorigin href="/assets/index-kDDLdDoo.css">
+        <link rel="stylesheet" crossorigin href="/assets/style.css">
     </body>
 </html>

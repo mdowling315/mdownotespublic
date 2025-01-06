@@ -1,7 +1,9 @@
 html, body, #root {
     margin: 0;
-    height: 100vh;
-    display: flex;
+    padding: 0;
+    height: 100%; /* Ensure 100% height for these elements */
+    display: flex; /* Make sure Flexbox is enabled for full-page layout */
+    flex-direction: column; /* Allow stacking of children (if necessary) */
 }
 .split {
     /* Flex container that is row-based to make the split horizontal */
@@ -9,16 +11,49 @@ html, body, #root {
     display: flex; /* Enable Flexbox for horizontal layout */
 }
 .left {
-    flex: 8; /* 80% of the space */
+    flex: 2; /* 80% of the space */
     background-color: lightblue;
     display: flex;
+    flex-direction: column; /* Stack content vertically */
     justify-content: center;
     align-items: center;
+    padding: 10px;
+    overflow-y: auto;
+    word-wrap: break-word; /* Allow long words to break and wrap onto the next line */
+    word-break: break-word; /* Prevents overflow of long words without spaces */
+}
+/* Subclasses inside the left box */
+.left .left-align {
+    text-align: left; /* Aligns text to the left */
+    white-space: nowrap; /* Prevents the timestamp from wrapping to the next line */
+}
+.left .right-align {
+    text-align: right; /* Aligns text to the right */
+}
+.left .center-align {
+    text-align: center; /* Center the text */
 }
 .right {
-    flex: 2; /* 20% of the space */
+    flex: 8; /* 20% of the space */
     background-color: lightcoral;
     display: flex;
+    flex-direction: column; /* Stack content vertically */
     justify-content: center;
     align-items: center;
+    padding: 10px;
+    overflow-y: auto;
+    word-wrap: break-word; /* Allow long words to break and wrap onto the next line */
+    word-break: break-word; /* Prevents overflow of long words without spaces */
+}
+.left .left-align,
+.left .center-align,
+.left .right-align {
+    padding: 8px 12px; /* Add padding inside the <p> tags */
+}
+.comment{
+    background-color: white;
+    display: flex; /* Use Flexbox to align children horizontally */
+    justify-content: space-between; /* Space out the children across the container */
+    align-items: center; /* Vertically center the content if needed */
+    width: 100%; /* Take up the full width of the parent */
 }

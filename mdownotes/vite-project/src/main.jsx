@@ -9,7 +9,6 @@ const videoId1 = String(window.VIDEO_ID); // Ensure it's a string
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <p>trying to load the guy with {id} and {videoId1}</p>
     <App1 id = {id} videoId = {videoId1}></App1>
   </StrictMode>,
 )
