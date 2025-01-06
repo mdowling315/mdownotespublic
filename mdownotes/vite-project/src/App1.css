@@ -3,23 +3,22 @@ html, body, #root {
     height: 100vh;
     display: flex;
 }
-.container {
-    display: flex;
-    height: 100vh;  /* Full viewport height */
-  }
 .split {
-    /* flex: 1;  Each side takes up half of the viewport width */ 
+    /* Flex container that is row-based to make the split horizontal */
     height: 100%;
-    display: flex; /* Enable Flexbox for centering */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    flex-direction: column;
+    display: flex; /* Enable Flexbox for horizontal layout */
 }
 .left {
-    flex: 2;
+    flex: 8; /* 80% of the space */
     background-color: lightblue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .right {
-    flex: 8;
+    flex: 2; /* 20% of the space */
     background-color: lightcoral;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
