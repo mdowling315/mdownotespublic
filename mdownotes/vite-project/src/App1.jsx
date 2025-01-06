@@ -1,6 +1,6 @@
 import React, { useState, useEffect, StrictMode, useCallback } from "react";
 import PropTypes from "prop-types";
-// import InfiniteScroll from "react-infinite-scroll-component";
+import InfiniteScroll from "react-infinite-scroll-component";
 import './App1.css'
 
 export default function App1({id, videoId, vididSQL}) {
@@ -10,6 +10,13 @@ export default function App1({id, videoId, vididSQL}) {
     const [comment, setComment] = useState("");
     const [isDisabled, setIsDisabled] = useState(false)
     const [order, setOrder] = useState(false)
+
+    // "exported"
+    const [arr, SetArr] = useState([]);
+    const [nexturl, SetNexturl] = useState("");
+    const [NextAllowed, setNextAllowed] = useState(false);
+    const [Fetched, setFetched] = useState(false);
+    // const [RenderedPosts, setRenderedPosts] = useState([]);
   
     // This function is called when the YouTube IFrame API is ready
     window.onYouTubeIframeAPIReady = () => {
@@ -73,7 +80,7 @@ export default function App1({id, videoId, vididSQL}) {
         setCurLoad(new_arr);
     }
 
-    function sendPosts(){
+    function sendPosts(e){
         if (cur_load.length != 0){
             setIsDisabled(true);
             fetch(`/api/posts/?vidid=${vididSQL}`, {
@@ -86,7 +93,35 @@ export default function App1({id, videoId, vididSQL}) {
             })
             setCurLoad([]);
         }
+        else{
+            e.preventDefault();
+        }
     }
+
+    //useEffect for fetching from REST API
+    useEffect(() => {
+        fetch(`/api/posts/?vidid=${vididSQL}`, {
+          method: "GET",
+          credentials: "same-origin", // how to do the authorization
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to delete resource");
+            } else {
+              return response.json();
+            }
+          })
+          .then((data) => {
+            console.log(`next url set to ${data.next}`);
+            SetArr(data.results);
+            SetNexturl(data.next);
+            setFetched(true);
+          })
+          .catch((error) => console.log(error));
+      }, []);
+
+
+    //useEffect for IFrame setup
     useEffect(() => {
       // Dynamically load the YouTube IFrame API script
 
@@ -100,13 +135,11 @@ export default function App1({id, videoId, vididSQL}) {
         }
       };
       window.addEventListener('beforeunload', handleBeforeUnload);
-
-
-      console.log(id)
-      console.log(window.id5);
-      console.log(videoId)
-      console.log(window.VIDEO_ID);
-      console.log("beforebranch")
+      //console.log(id)
+      //console.log(window.id5);
+      //console.log(videoId)
+      //console.log(window.VIDEO_ID);
+      //console.log("beforebranch")
       if (!window.YT) {
         const script = document.createElement('script');
         script.src = "https://www.youtube.com/iframe_api";
@@ -129,13 +162,43 @@ export default function App1({id, videoId, vididSQL}) {
         setTimestamp(currentTime);
       }
     };
+
+    const fetchMoreData = () => {
+        // console.log("tryna fetch with arr length: " + RenderedPosts.length);
+        console.log("fetchmoreDatacalled");
+    
+        console.log(nexturl);
+        fetch(nexturl, {
+        method: "GET",
+        credentials: "same-origin",
+        })
+        .then((response) => {
+            if (response.ok) {
+            return response.json();
+            }
+            throw new Error("Failed to fetch resource");
+        })
+        .catch((error) => console.log(error))
+        .then((data) => {
+            // debugger;
+            // console.log("got the data from "+nexturl);
+            console.log(data.results);
+            // const newarr = [...arr];
+            // const newarr1 = data.results;
+            // debugger;
+            SetArr([...arr, ...data.results]); // prevArr is the latest state
+            SetNexturl(data.next); // Update nexturl as usual
+            // console.log("next is :" + data.next);
+        });
+        }
+
   
     const handleKeyPress = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           addPost(e); // Submit the form when Enter is pressed
         }
       };
-    
+
     return (
       <div className = "split">
         <div className="left"> <h1>Current Load of Posts</h1> 
@@ -165,50 +228,73 @@ export default function App1({id, videoId, vididSQL}) {
        
         </div>
         <div className="right">
+            <div id = "right-bottom">
 
-            <form style={{ marginTop: '30px' }} action="/delete_vid/" method="post" encType="multipart/form-data">
-                <label> Delete Video </label><br />
-                <label> Type "Confirm Delete" to delete this video </label>
-                <input type="text" name="confirm" required />
-                <input type="hidden" name="id" value={id} />
-                <input type="hidden" name="nonce" value={String(videoId)} />
-                <input type="submit" name="Delete" value="Delete" />
-            </form>
-            <br></br> <br></br>
-            <iframe
-            id="youtube-player"
-            width="800"
-            height="450"
-            src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-            title="YouTube Video Player"
-            ></iframe>
+                <form style={{ marginTop: '30px', textAlign: 'center' }} action="/delete_vid/" method="post" encType="multipart/form-data">
+                        <label> Delete Video </label><br />
+                        <label> Type "Confirm Delete" to delete this video </label>
+                        <input type="text" name="confirm" required />
+                        <input type="hidden" name="id" value={id} />
+                        <input type="hidden" name="nonce" value={String(videoId)} />
+                        <input type="submit" name="Delete" value="Delete" />
+                    </form>
+                    <br></br> <br></br>
+                    <iframe
+                    id="youtube-player"
+                    width="800"
+                    height="450"
+                    src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    title="YouTube Video Player"
+                    ></iframe>
 
-        <br></br>
+                <br></br>
 
-        <form style = {{ width: '40%'}} onSubmit={addPost}>
-        <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)} // Update state with input
-            placeholder="Enter your post"
-            disabled={isDisabled}
-            style={{
-            width: '100%', // Make it take the full width of the container
-            height: '20px', // Set a larger height for more typing space
-            fontSize: '16px', // Increase font size for better readability
-            padding: '10px', // Optional: add padding for better spacing inside
-            resize: 'vertical', // Optional: allow resizing vertically
-            }}
-            onKeyDown={handleKeyPress} // Listen for key press event
-        />
-        <button type="submit">Submit</button> {/* Submit button */}
-        </form>
+                <form style = {{ width: '40%', textAlign: 'center' }} onSubmit={addPost}>
+                <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)} // Update state with input
+                    placeholder="Enter your post"
+                    disabled={isDisabled}
+                    style={{
+                    width: '100%', // Make it take the full width of the container
+                    height: '20px', // Set a larger height for more typing space
+                    fontSize: '16px', // Increase font size for better readability
+                    padding: '10px', // Optional: add padding for better spacing inside
+                    resize: 'vertical', // Optional: allow resizing vertically
+                    }}
+                    onKeyDown={handleKeyPress} // Listen for key press event
+                />
+                <button type="submit">Submit</button> {/* Submit button */}
+                </form>
+                <br></br>
+                <h1 style={{ textAlign: "center" }}>Posts</h1>
+                <br></br>
 
-        <br></br>
-        
-        
-        
+                {Fetched ? (    
+                <InfiniteScroll
+                    dataLength={arr.length} // number of items in the  list
+                    hasMore={!!nexturl} // boolean to determine if more data can lod
+                    next={fetchMoreData}
+                    loader={<h4>Loading more posts...</h4>} // loader when fetching newdata
+                    scrollThreshold={0.9}
+                    scrollableTarget = "right-bottom"
+                    endMessage={
+                    <p style={{ textAlign: "center" }}>
+                        <b>Yay! You have seen it all</b>
+                    </p>
+                    }
+                >
+                    {arr.map((x) => (
+                        <p  style={{ textAlign: "center" }} key = {x.postid}>{x.vid_timestamp}:{x.postid}:{x.url}</p>
+                    ))}
+                </InfiniteScroll>) : (
+                    <h4> fetching... </h4>
+                )}
+                
+            
+            </div>
         </div>
       </div>
     );
