@@ -58,17 +58,18 @@ def get_next_posts():
     size = flask.request.args.get("size", default=10, type=int)
     timeint = flask.request.args.get("timeint", default=0, type=int)
     minid = flask.request.args.get("minid", default=0, type=int)
+    vidid = flask.request.args.get("vidid", default=-1, type=int)
     
-    if null_checker(size, timeint, minid):
+    if null_checker(size, timeint, minid, vidid):
         context = {"message": "Bad Request", "status_code": 400}
         return flask.jsonify(**context), 400
     
-    if size < 1 or timeint < 0 or minid < 0:
+    if size < 1 or timeint < 0 or minid < 0 or vidid < 0:
         # bad request
         context = {"message": "Bad Request", "status_code": 400}
         return flask.jsonify(**context), 400
     
-    (prmstr, posts) = paginate(size, timeint, minid, cursor)
+    (prmstr, posts) = paginate(size, timeint, minid, vidid, cursor)
     for post in posts:
         post["url"] = "/api/posts/" + str(post["postid"]) + "/"
     
@@ -77,19 +78,19 @@ def get_next_posts():
     return flask.jsonify(**context)
     
     
-def paginate(size: int, timeint: int, minid: int, cursor):
+def paginate(size: int, timeint: int, minid: int, vidid:int, cursor):
     """Paginate posts from database."""
     cur = cursor.execute(
     "SELECT vid_timestamp, postid FROM posts "
-    "WHERE vid_timestamp = ? AND postid > ? ORDER BY postid ASC LIMIT ?",
-    (timeint, minid, size),
+    "WHERE vidid = ? AND vid_timestamp = ? AND postid > ? ORDER BY postid ASC LIMIT ?",
+    (vidid, timeint, minid, size),
     ).fetchall()
     rest = size - len(cur)
     if rest != 0:
         cur = cur + cursor.execute(
             "SELECT vid_timestamp, postid FROM posts "
-            "WHERE vid_timestamp > ? ORDER BY vid_timestamp ASC, postid ASC LIMIT ?",
-            (timeint, rest),
+            "WHERE vidid = ? AND vid_timestamp > ? ORDER BY vid_timestamp ASC, postid ASC LIMIT ?",
+            (vidid, timeint, rest),
             ).fetchall()
     assert(len(cur) <= size)
     if (len(cur) < size):
@@ -104,6 +105,8 @@ def paginate(size: int, timeint: int, minid: int, cursor):
             + str(cur[-1]["vid_timestamp"])
             + "&minid="
             + str(cur[-1]["postid"])
+            + "&vidid="
+            + str(vidid)
         )
     return paramstr, cur
 
@@ -124,11 +127,9 @@ def insert_batch():
         context = {"message": "Bad Request", "status_code": 400}
         return flask.jsonify(**context), 400
     cursor = mdownotes.model.get_db().cursor()
-    
-    
     cursor.executemany(
         "INSERT into posts(text, owner, vid_timestamp, vidid) "
-        "VALUES(?,?,?,?)", [(a["text"], logname, a["vid_timestamp"], id) for a in received_batch]
+        "VALUES(?,?,?,?)", [(a["text"], logname, a["timestamp"], id) for a in received_batch]
     )
     # we dont return any data because the user should trigger a page reload when hitting this route. 
     return flask.Response(status=201)
@@ -156,8 +157,7 @@ def insert_comment():
     if len(cur.fetchall()) == 0:
         context = {"message": "Not Found", "status_code": 404}
         return flask.jsonify(**context), 404
-    
-    
+
     # race condition lol
     cursor.execute(
             "INSERT INTO "

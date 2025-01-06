@@ -148,7 +148,8 @@ def serve_video_page(cat_id, nonce):
         "VIDEO_ID": nonce,
         "title": z[0]["title"],
         "id": cat_id,
-        "category": y[0]["desc"]
+        "category": y[0]["desc"],
+        "vididSQL": z[0]["vidid"]
     }
     return flask.render_template("video3.html", **context)
 
