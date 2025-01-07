@@ -6,9 +6,12 @@
     <title>YouTube Timestamp Form</title>
     </head>
     <body>
-        <h3 style = "text-align: center;" >{{category}} : {{title}} <form style = "text-align: left;" action="/logout/" method="post" enctype="multipart/form-data">
-            <input type="submit" name="logout" value="Logout"/>
-        </form></h3>
+        <h3 style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+            <span style="text-align: center; white-space: nowrap; padding: 1px 12px;">{{category}} | {{title}}</span>
+            <form style="text-align: right; padding: 1px 12px;" action="/logout/" method="post" enctype="multipart/form-data">
+                <input type="submit" name="logout" value="Logout"/>
+            </form>
+        </h3>
         <!-- hopefully this plays first -->
         <script>
             const VIDEO_ID = "{{VIDEO_ID}}"; 
