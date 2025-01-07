@@ -14,6 +14,10 @@ def get_post(postid_url_slug):
     
     cursor = mdownotes.model.get_db().cursor()
     
+    if postid_url_slug < 0:
+        context = {"message": "Bad Request", "status_code": 400}
+        return flask.jsonify(**context), 400
+    
     context = cursor.execute(
             "SELECT * "
             "FROM posts "
@@ -22,6 +26,7 @@ def get_post(postid_url_slug):
     if context is None:
         context = {"message": "Not Found", "status_code": 404}
         return flask.jsonify(**context), 404
+    context["ownerShowUrl"] = f"/users/{context["owner"]}/"
 
     cur = cursor.execute(
             "SELECT owner, text, created, commentid "
@@ -30,6 +35,7 @@ def get_post(postid_url_slug):
         ).fetchall()
     for comment in cur:
         comment["url"] = "/api/comments/" + str(comment["commentid"]) + "/"
+        comment["logOwnsThis"] = logname == comment["owner"]
     
     # this does not work with us anymore
     #context["comments_url"] = "/api/comments/?postid=" + str(
@@ -39,6 +45,7 @@ def get_post(postid_url_slug):
         context["comments"] = cur
     else:
         context["comments"] = []
+    context["logOwnsThis"] = context["owner"] == logname
         
     return flask.jsonify(**context)
         
@@ -144,16 +151,17 @@ def insert_comment():
         return flask.jsonify(**context), 403
     # some dict
     received_comment = flask.request.json.get('comment')
+    postid = flask.request.json.get('postid')
     
     # not doing any null checks on the values of the dictionary, so could have a dictionary with nulls in it
     # for simplicity now I dont care.
-    if null_checker(received_comment):
+    if null_checker(received_comment, postid):
         context = {"message": "Bad Request", "status_code": 400}
         return flask.jsonify(**context), 400
     cursor = mdownotes.model.get_db().cursor()
     
     cur = cursor.execute("SELECT owner FROM "
-                             "posts Where postid = ?", (received_comment["postid"],))
+                             "posts Where postid = ?", (postid,))
     if len(cur.fetchall()) == 0:
         context = {"message": "Not Found", "status_code": 404}
         return flask.jsonify(**context), 404
@@ -163,18 +171,21 @@ def insert_comment():
             "INSERT INTO "
             "comments(owner, postid, text) "
             "VALUES (?, ?, ?)",
-            (logname, received_comment["postid"], received_comment["text"]),
+            (logname, postid, received_comment),
         )
-    cur = cursor.execute("SELECT MAX(commentid) AS commentid "
-                    "FROM comments").fetchall()
+    cur = cursor.execute('''SELECT created, commentid
+                            FROM comments
+                        WHERE commentid = (SELECT MAX(commentid) FROM comments);''').fetchall()
     newid = cur[0]["commentid"]
     context = {
             "commentid": newid,
-            "lognameOwnsThis": True,
+            "logOwnsThis": True,
             "owner": logname,
-            "text": received_comment["text"],
+            "text": received_comment,
             "url": "/api/v1/comments/" + str(newid) + "/",
+            "created": cur[0]["created"],
         }
+    return flask.jsonify(**context)
     
     
 # deletes a post

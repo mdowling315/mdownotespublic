@@ -33,16 +33,16 @@ VALUES
 
 INSERT INTO posts(text, owner, vid_timestamp, vidid)
 VALUES
-    ('its difficult to deal with all of the feedback chaos.', 'chickens', 1380, 1);
+    ('its difficult to deal with all of the feedback chaos.', 'chickens', 1380, 4);
 INSERT INTO posts(text, owner, vid_timestamp, vidid)
 VALUES
-    ('its difficult to deal with all of the feedback chaos.', 'chickens', 1380, 1);
+    ('its difficult to deal with all of the feedback chaos.', 'chickens', 1380, 4);
 INSERT INTO posts(text, owner, vid_timestamp, vidid)
 VALUES
-    ('its difficult to deal with all of the feedback chaos.', 'chickens', 1380, 1);
+    ('its difficult to deal with all of the feedback chaos.', 'chickens', 1380, 4);
 INSERT INTO posts(text, owner, vid_timestamp, vidid)
 VALUES
-    ('its difficult to deal with all of the feedback chaos.', 'chickens', 1380, 1);
+    ('its difficult to deal with all of the feedback chaos.', 'chickens', 1380, 4);
 
 INSERT INTO comments(owner, postid, text)
 VALUES

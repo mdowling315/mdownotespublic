@@ -2,6 +2,7 @@ import React, { useState, useEffect, StrictMode, useCallback } from "react";
 import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroll-component";
 import './App1.css'
+import Post from "./Post.jsx";
 
 export default function App1({id, videoId, vididSQL}) {
     const [player, setPlayer] = useState(null);
@@ -80,6 +81,26 @@ export default function App1({id, videoId, vididSQL}) {
         setCurLoad(new_arr);
     }
 
+    const delete_post_net = (postid) => {
+      fetch(`/api/posts/?postid=${postid}`, {
+        method: "DELETE",
+      })
+        .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to delete resource");
+            } else {
+              return
+            }
+          })
+        .then(() => {
+          // Update the state to remove the deleted post
+          SetArr((prevArr) => prevArr.filter((x) => x.postid !== postid));
+        })
+        .catch((error) => {
+          console.error("Error deleting post:", error);
+        });
+    }
+
     function sendPosts(e){
         if (cur_load.length != 0){
             setIsDisabled(true);
@@ -100,7 +121,7 @@ export default function App1({id, videoId, vididSQL}) {
 
     //useEffect for fetching from REST API
     useEffect(() => {
-        fetch(`/api/posts/?vidid=${vididSQL}`, {
+        fetch(`/api/posts/?vidid=${vididSQL}&size=30`, {
           method: "GET",
           credentials: "same-origin", // how to do the authorization
         })
@@ -239,17 +260,24 @@ export default function App1({id, videoId, vididSQL}) {
                         <input type="submit" name="Delete" value="Delete" />
                     </form>
                     <br></br> <br></br>
+                    <div className = "flexboxagain1">
+                    <div id = "iframe-wrap">
                     <iframe
-                    id="youtube-player"
-                    width="800"
-                    height="450"
-                    src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    title="YouTube Video Player"
-                    ></iframe>
-
+                        style={{textAlign: 'center', display: "flex" }}
+                        id="youtube-player"
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
+                        allow="autoplay; encrypted-media"
+                        allowFullScreen
+                        title="YouTube Video Player">
+                    </iframe>
+                    
                 <br></br>
+
+                
+                </div>
+                  </div>
 
                 <form style = {{ width: '40%', textAlign: 'center' }} onSubmit={addPost}>
                 <textarea
@@ -268,30 +296,32 @@ export default function App1({id, videoId, vididSQL}) {
                 />
                 <button type="submit">Submit</button> {/* Submit button */}
                 </form>
-                <br></br>
-                <h1 style={{ textAlign: "center" }}>Posts</h1>
-                <br></br>
 
-                {Fetched ? (    
-                <InfiniteScroll
-                    dataLength={arr.length} // number of items in the  list
-                    hasMore={!!nexturl} // boolean to determine if more data can lod
-                    next={fetchMoreData}
-                    loader={<h4>Loading more posts...</h4>} // loader when fetching newdata
-                    scrollThreshold={0.9}
-                    scrollableTarget = "right-bottom"
-                    endMessage={
-                    <p style={{ textAlign: "center" }}>
-                        <b>Yay! You have seen it all</b>
-                    </p>
-                    }
-                >
-                    {arr.map((x) => (
-                        <p  style={{ textAlign: "center" }} key = {x.postid}>{x.vid_timestamp}:{x.postid}:{x.url}</p>
-                    ))}
-                </InfiniteScroll>) : (
-                    <h4> fetching... </h4>
-                )}
+                  {Fetched ? (    
+                  <InfiniteScroll 
+                      className = "flexboxagain"
+                      style = {{width: "100%"}}
+                      dataLength={arr.length} // number of items in the  list
+                      hasMore={!!nexturl} // boolean to determine if more data can lod
+                      next={fetchMoreData}
+                      loader={<h4>Loading more posts...</h4>} // loader when fetching newdata
+                      scrollThreshold={0.9}
+                      scrollableTarget = "right-bottom"
+                      endMessage={
+                      <p style={{ textAlign: "center" }}>
+                          <b>All posts loaded</b>
+                      </p>
+                      }
+                  >
+                      <br></br>
+                      <h1 style={{ textAlign: "center" }}>Posts</h1>
+                      <br></br>
+                      {arr.map((x) => (
+                          <Post  style={{ textAlign: "center" }} key = {x.postid} url = {x.url} postid = {x.postid} Del_post={delete_post_net}></Post>
+                      ))}
+                  </InfiniteScroll>) : (
+                      <h4> fetching... </h4>
+                  )}
                 
             
             </div>
