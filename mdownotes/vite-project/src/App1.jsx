@@ -7,10 +7,11 @@ import Post from "./Post.jsx";
 export default function App1({id, videoId, vididSQL}) {
     const [player, setPlayer] = useState(null);
     const [timestamp, setTimestamp] = useState(null);
-    const [cur_load, setCurLoad] = useState([])
+    const [cur_load, setCurLoad] = useState([]);
     const [comment, setComment] = useState("");
-    const [isDisabled, setIsDisabled] = useState(false)
-    const [order, setOrder] = useState(false)
+    const [isDisabled, setIsDisabled] = useState(false);
+    const [order, setOrder] = useState(false);
+    const [reveal, setReveal] =useState(false);
 
     // "exported"
     const [arr, SetArr] = useState([]);
@@ -297,7 +298,8 @@ export default function App1({id, videoId, vididSQL}) {
                 <button type="submit">Submit</button> {/* Submit button */}
                 </form>
 
-                  {Fetched ? (    
+                  {Fetched ? (  
+                    reveal ? (  
                   <InfiniteScroll 
                       className = "flexboxagain"
                       style = {{width: "100%"}}
@@ -320,6 +322,13 @@ export default function App1({id, videoId, vididSQL}) {
                           <Post  style={{ textAlign: "center" }} key = {x.postid} url = {x.url} postid = {x.postid} Del_post={delete_post_net}></Post>
                       ))}
                   </InfiniteScroll>) : (
+                    <div className = "flexboxagain">
+                    <br></br>
+                    <h1 style={{ textAlign: "center" }}>posts are hidden by default, click to reveal</h1>
+                    <br></br>
+                    <button onClick={() => setReveal(true)}> Show Posts </button>
+                    </div>
+                  )) : (
                       <h4> fetching... </h4>
                   )}
                 
