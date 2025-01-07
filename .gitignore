@@ -2,5 +2,4 @@ env
 node_modules/
 cookies.txt
 session.json
-bundle.js
 *.js.map
