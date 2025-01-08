@@ -29,7 +29,14 @@
     </style>
 </head>
 <body>
-    <h1>{{category}}</h1>
+    <h1 style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+        <span style="text-align: center; white-space: nowrap; padding: 1px 12px;"> <a style = "text-decoration: none;" href="/"> Back </a> </span>
+        <span style="text-align: center; white-space: nowrap; padding: 1px 12px;"> {{category}} </span>
+        <form style="text-align: right; padding: 1px 12px;" action="/logout/" method="post" enctype="multipart/form-data">
+            <input type="submit" name="logout" value="Logout"/>
+        </form>
+    </h1>
+    <br></br>
     <div class="text-box-container">
         {% for vid in vid_list %}
             <a class="text-box" href= "/{{categoryid}}/{{vid["url"]}}/">

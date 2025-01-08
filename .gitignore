@@ -2,4 +2,6 @@ env
 node_modules/
 cookies.txt
 session.json
+*.pem
 *.js.map
+var/mdownotes.sqlite3

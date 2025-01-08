@@ -7,7 +7,7 @@
     </head>
     <body>
         <h3 style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-            <span style="text-align: center; white-space: nowrap; padding: 1px 12px;">{{category}} | {{title}}</span>
+            <span style="text-align: center; white-space: nowrap; padding: 1px 12px;"> <a style = "text-decoration: none;" href="/{{id}}/" >{{category}}</a> | {{title}}</span>
             <form style="text-align: right; padding: 1px 12px;" action="/logout/" method="post" enctype="multipart/form-data">
                 <input type="submit" name="logout" value="Logout"/>
             </form>

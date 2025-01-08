@@ -12,12 +12,13 @@ def get_post(postid_url_slug):
         context = {"message": "Forbidden", "status_code": 403}
         return flask.jsonify(**context), 403
     
-    cursor = mdownotes.model.get_db().cursor()
+    
     
     if postid_url_slug < 0:
         context = {"message": "Bad Request", "status_code": 400}
         return flask.jsonify(**context), 400
     
+    cursor = mdownotes.model.get_db().cursor()
     context = cursor.execute(
             "SELECT * "
             "FROM posts "
@@ -25,6 +26,7 @@ def get_post(postid_url_slug):
         ).fetchone()
     if context is None:
         context = {"message": "Not Found", "status_code": 404}
+        cursor.close()
         return flask.jsonify(**context), 404
     context["ownerShowUrl"] = f"/users/{context["owner"]}/"
 
@@ -46,7 +48,7 @@ def get_post(postid_url_slug):
     else:
         context["comments"] = []
     context["logOwnsThis"] = context["owner"] == logname
-        
+    cursor.close()
     return flask.jsonify(**context)
         
 
@@ -61,7 +63,7 @@ def get_next_posts():
         context = {"message": "Forbidden", "status_code": 403}
         return flask.jsonify(**context), 403
     
-    cursor = mdownotes.model.get_db().cursor()
+    
     size = flask.request.args.get("size", default=10, type=int)
     timeint = flask.request.args.get("timeint", default=0, type=int)
     minid = flask.request.args.get("minid", default=0, type=int)
@@ -76,12 +78,14 @@ def get_next_posts():
         context = {"message": "Bad Request", "status_code": 400}
         return flask.jsonify(**context), 400
     
+    cursor = mdownotes.model.get_db().cursor()
     (prmstr, posts) = paginate(size, timeint, minid, vidid, cursor)
     for post in posts:
         post["url"] = "/api/posts/" + str(post["postid"]) + "/"
     
     pth = flask.request.full_path
     context = {"next": prmstr, "results": posts, "url": pth.rstrip("?")}
+    cursor.close()
     return flask.jsonify(**context)
     
     
@@ -138,7 +142,8 @@ def insert_batch():
         "INSERT into posts(text, owner, vid_timestamp, vidid) "
         "VALUES(?,?,?,?)", [(a["text"], logname, a["timestamp"], id) for a in received_batch]
     )
-    # we dont return any data because the user should trigger a page reload when hitting this route. 
+    # we dont return any data because the user should trigger a page reload when hitting this route.
+    cursor.close() 
     return flask.Response(status=201)
 
 # inserts a comment from the user
@@ -164,6 +169,7 @@ def insert_comment():
                              "posts Where postid = ?", (postid,))
     if len(cur.fetchall()) == 0:
         context = {"message": "Not Found", "status_code": 404}
+        cursor.close()
         return flask.jsonify(**context), 404
 
     # race condition lol
@@ -185,6 +191,7 @@ def insert_comment():
             "url": "/api/v1/comments/" + str(newid) + "/",
             "created": cur[0]["created"],
         }
+    cursor.close()
     return flask.jsonify(**context)
     
     
@@ -207,15 +214,18 @@ def delete_post():
     ).fetchall()
     if len(p) == 0:
         context = {"message": "Not Found", "status_code": 404}
+        cursor.close()
         return flask.jsonify(**context), 404
     if p[0]["owner"] != logname:
         context = {"message": "Forbidden", "status_code": 403}
+        cursor.close()
         return flask.jsonify(**context), 403
     
     cursor.execute(
         "DELETE FROM posts "
         "WHERE postid = ?", (postid,)
     )
+    cursor.close()
     return flask.Response(status=204)
 
 # deletes a comment
@@ -237,15 +247,18 @@ def delete_comment():
     ).fetchall()
     if len(p) == 0:
         context = {"message": "Not Found", "status_code": 404}
+        cursor.close()
         return flask.jsonify(**context), 404
     if p[0]["owner"] != logname:
         context = {"message": "Forbidden", "status_code": 403}
+        cursor.close()
         return flask.jsonify(**context), 403
     
     cursor.execute(
         "DELETE FROM comments "
         "WHERE commentid = ?", (commentid,)
     )
+    cursor.close()
     return flask.Response(status=204)
 
 

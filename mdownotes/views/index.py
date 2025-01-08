@@ -27,6 +27,7 @@ def show_index():
     #print(y)
     context = {"logname": logname,
                "cat_list": y}
+    cursor.close()
     return flask.render_template("index.html", **context)
 
 @mdownotes.app.route('/', methods=["POST"])
@@ -38,6 +39,7 @@ def create_category():
         "VALUES(?)",
         (flask.request.form["New Category"],)
         )
+    cursor.close()
     return flask.redirect("/")
 
 
@@ -68,6 +70,7 @@ def show_category(cat_id):
         "vid_list": z,
         "categoryid": cat_id
     }
+    cursor.close()
     return flask.render_template("category.html", **context)
 
 @mdownotes.app.route('/<cat_id>/', methods=["POST"])
@@ -106,6 +109,8 @@ def make_video(cat_id):
         (cat_id, url)
         ).fetchall()
     if len(y) == 1:
+        cursor.close()
+      
         return flask.redirect(f"/{cat_id}/")
     
     cursor.execute(
@@ -113,6 +118,8 @@ def make_video(cat_id):
             "VALUES(?, ?, ?)",
             (url, flask.request.form["title"], cat_id)
         )
+    cursor.close()
+  
     return flask.redirect(f"/{cat_id}/")
 
 
@@ -151,6 +158,8 @@ def serve_video_page(cat_id, nonce):
         "category": y[0]["desc"],
         "vididSQL": z[0]["vidid"]
     }
+    cursor.close()
+    
     return flask.render_template("video3.html", **context)
 
 @mdownotes.app.route('/login/', methods=["GET"])
@@ -166,12 +175,16 @@ def delete_cat():
     cursor = connection.cursor()
     id = flask.request.form["id"]
     if flask.request.form["confirm"] != "Confirm Delete":
+        cursor.close()
+       
         return flask.redirect(f"/{id}/")
     cursor.execute(
             "DELETE FROM categories "
             "WHERE categoryid = ?",
             (int(id),)
         )
+    cursor.close()
+    
     return flask.redirect("/")
 
 
@@ -182,6 +195,7 @@ def delete_vid():
     id = flask.request.form["id"]
     nonce = flask.request.form["nonce"]
     if flask.request.form["confirm"] != "Confirm Delete":
+        cursor.close()
         return flask.redirect(f"/{id}/{nonce}")
     cursor.execute(
             "DELETE FROM videos "
@@ -189,6 +203,8 @@ def delete_vid():
             "AND url = ?",
             (id,nonce)
         )
+    cursor.close()
+  
     return flask.redirect(f"/{id}/")
     # get the form value for the category id
     
@@ -198,7 +214,7 @@ def delete_vid():
 @mdownotes.app.route("/accounts/", methods=["POST"])
 def post_accounts():
     """POST METHOD: Accounts."""
-    cursor = mdownotes.model.get_db().cursor()
+    
 
     if flask.request.form["operation"] == "login":
         username = flask.request.form["username"]
@@ -206,11 +222,15 @@ def post_accounts():
 
         # Check if username and password fields are invalid
         null_checker(username, password)
+        
+        connection = mdownotes.model.get_db()
+        cursor = connection.cursor()
 
         if user_authentication(username, password, cursor):
             # Set the cookies!!!
             flask.session["username"] = username
-
+            cursor.close()
+          
             return flask.redirect(p_tar(flask.request.args.get('target')))
         # Password did not match
         flask.abort(403)
@@ -224,6 +244,8 @@ def post_accounts():
         # make sure form was complete
         null_checker(username, password)
 
+        connection = mdownotes.model.get_db()
+        cursor = connection.cursor()
         # request to see if user exists already in table
         cur = cursor.execute(
             "SELECT username "
@@ -233,6 +255,7 @@ def post_accounts():
         )
         # login_list = cur.fetchall()
         if len(cur.fetchall()) != 0:
+            cursor.close()
             flask.abort(409)
 
         # Please keep note that save() method edits the uploads dir
@@ -244,6 +267,8 @@ def post_accounts():
             )
         # now we copy behavior of login operation
         flask.session["username"] = username
+        cursor.close()
+       
         return flask.redirect(p_tar(flask.request.args.get('target')))
 
     # delete operation
@@ -255,10 +280,14 @@ def post_accounts():
             flask.abort(403)
         logname = flask.session["username"]
 
+        connection = mdownotes.model.get_db()
+        cursor = connection.cursor()
         # do the delete cascade
         cursor.execute("DELETE FROM users WHERE username = ?", (logname,))
 
         flask.session.pop("username", None)
+        cursor.close()
+       
         return flask.redirect(p_tar(flask.request.args.get('target')))
 
     elif flask.request.form["operation"] == "update_password":
@@ -268,11 +297,16 @@ def post_accounts():
         password2 = flask.request.form["new_password2"]
         null_checker(password, password1, password2)
 
+        connection = mdownotes.model.get_db()
+        cursor = connection.cursor()
+
         # make sure form was right in its reqs
         if user_authentication(flask.session["username"], password, cursor):
             if password1 != password2:
+                cursor.close()
                 flask.abort(401)
         else:
+            cursor.close()
             flask.abort(403)
 
         # update the password
@@ -281,6 +315,7 @@ def post_accounts():
             ' WHERE username = ?',
             (get_db_ps_str(password1), flask.session["username"])
             )
+        cursor.close()
         return flask.redirect(p_tar(flask.request.args.get('target')))
     flask.abort(500)
 
@@ -373,7 +408,8 @@ def render_user_page(user_url_slug):
         flask.abort(404)
     context = {"username": user_url_slug,
                "logname": logname}
-    
+    cursor.close()
+  
     return flask.render_template("user.html", **context)
 
 
@@ -408,7 +444,7 @@ def edit_acc():
 
 @mdownotes.app.route("/assets/<string:thing_to_get>/", methods = ["GET"])
 def serve_file1(thing_to_get):
-    print("hi")
+    #print("hi")
     print(thing_to_get)
     return flask.send_from_directory(mdownotes.app.static_folder, "assets/" + thing_to_get)
 
