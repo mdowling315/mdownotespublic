@@ -13,7 +13,7 @@ def get_post(postid_url_slug):
         return flask.jsonify(**context), 403
     
     
-    
+    simple = flask.request.args.get("simple", default=False, type=bool)
     if postid_url_slug < 0:
         context = {"message": "Bad Request", "status_code": 400}
         return flask.jsonify(**context), 400
@@ -30,24 +30,25 @@ def get_post(postid_url_slug):
         return flask.jsonify(**context), 404
     context["ownerShowUrl"] = f"/users/{context["owner"]}/"
 
-    cur = cursor.execute(
-            "SELECT owner, text, created, commentid "
-            "FROM comments " "WHERE postid = ?",
-            (postid_url_slug,),
-        ).fetchall()
-    for comment in cur:
-        comment["url"] = "/api/comments/" + str(comment["commentid"]) + "/"
-        comment["logOwnsThis"] = logname == comment["owner"]
-    
-    # this does not work with us anymore
-    #context["comments_url"] = "/api/comments/?postid=" + str(
-    #        postid_url_slug
-    #)
-    if len(cur) != 0:
-        context["comments"] = cur
-    else:
-        context["comments"] = []
-    context["logOwnsThis"] = context["owner"] == logname
+    if ( not simple):
+        cur = cursor.execute(
+                "SELECT owner, text, created, commentid "
+                "FROM comments " "WHERE postid = ?",
+                (postid_url_slug,),
+            ).fetchall()
+        for comment in cur:
+            comment["url"] = "/api/comments/" + str(comment["commentid"]) + "/"
+            comment["logOwnsThis"] = logname == comment["owner"]
+        
+        # this does not work with us anymore
+        #context["comments_url"] = "/api/comments/?postid=" + str(
+        #        postid_url_slug
+        #)
+        if len(cur) != 0:
+            context["comments"] = cur
+        else:
+            context["comments"] = []
+        context["logOwnsThis"] = context["owner"] == logname
     cursor.close()
     return flask.jsonify(**context)
         

@@ -11,7 +11,7 @@ html, body, #root {
     height: 100%;
     display: flex; /* Enable Flexbox for horizontal layout */
 }
-.left {
+#left {
     flex: 2.5; /* 30% of the space */
     background-color: rgb(202, 202, 202);
     display: flex;
@@ -26,15 +26,15 @@ html, body, #root {
     height: 100%; /* Ensure the left container fills the available height */
 }
 /* Subclasses inside the left box */
-.left .left-align {
+#left .left-align {
     text-align: left; /* Aligns text to the left */
     white-space: nowrap; /* Prevents the timestamp from wrapping to the next line */
 }
-.left .right-align {
+#left .right-align {
     text-align: right; /* Aligns text to the right */
     white-space: nowrap;
 }
-.left .center-align {
+#left .center-align {
     text-align: center; /* Center the text */
 }
 .pcomment .left-align {
@@ -126,9 +126,9 @@ form {
     margin-bottom: 5px;
     margin-top: 5px;
 }
-.left .left-align,
-.left .center-align,
-.left .right-align {
+#left .left-align,
+#left .center-align,
+#left .right-align {
     padding: 8px 12px; /* Add padding inside the <p> tags */
 }
 button {

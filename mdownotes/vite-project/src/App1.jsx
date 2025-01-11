@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroll-component";
 import './App1.css'
 import Post from "./Post.jsx";
+import SimplePost from "./SimplePost.jsx";
 
 export default function App1({id, videoId, vididSQL}) {
     const [player, setPlayer] = useState(null);
@@ -12,10 +13,13 @@ export default function App1({id, videoId, vididSQL}) {
     const [isDisabled, setIsDisabled] = useState(false);
     const [order, setOrder] = useState(false);
     const [reveal, setReveal] =useState(false);
+    const [showCurLoad, setShowCurLoad] = useState(true);
 
     // "exported"
     const [arr, SetArr] = useState([]);
+    const [arr1, SetArr1] = useState([]);
     const [nexturl, SetNexturl] = useState("");
+    const [nexturl1, SetNexturl1] = useState("");
     const [NextAllowed, setNextAllowed] = useState(false);
     const [Fetched, setFetched] = useState(false);
     // const [RenderedPosts, setRenderedPosts] = useState([]);
@@ -136,6 +140,8 @@ export default function App1({id, videoId, vididSQL}) {
           .then((data) => {
             console.log(`next url set to ${data.next}`);
             SetArr(data.results);
+            SetArr1(data.results);
+            SetNexturl1(data.next);
             SetNexturl(data.next);
             setFetched(true);
           })
@@ -212,7 +218,36 @@ export default function App1({id, videoId, vididSQL}) {
             SetNexturl(data.next); // Update nexturl as usual
             // console.log("next is :" + data.next);
         });
-        }
+      }
+    
+      const fetchMoreData1 = () => {
+        // console.log("tryna fetch with arr length: " + RenderedPosts.length);
+        console.log("fetchmoreDatacalled");
+    
+        console.log(nexturl1);
+        fetch(nexturl1, {
+        method: "GET",
+        credentials: "same-origin",
+        })
+        .then((response) => {
+            if (response.ok) {
+            return response.json();
+            }
+            throw new Error("Failed to fetch resource");
+        })
+        .catch((error) => console.log(error))
+        .then((data) => {
+            // debugger;
+            // console.log("got the data from "+nexturl);
+            console.log(data.results);
+            // const newarr = [...arr];
+            // const newarr1 = data.results;
+            // debugger;
+            SetArr1([...arr1, ...data.results]); // prevArr is the latest state
+            SetNexturl1(data.next); // Update nexturl as usual
+            // console.log("next is :" + data.next);
+        });
+      }
 
   
     const handleKeyPress = (e) => {
@@ -223,7 +258,8 @@ export default function App1({id, videoId, vididSQL}) {
 
     return (
       <div className = "split">
-        <div className="left"> <h1>Current Load of Posts</h1> 
+        {showCurLoad ? (<div id="left"> <h1>Current Load of Posts</h1> 
+        <button onClick={() => setShowCurLoad(false)}> Follow-Along with Posts </button>
         <div className="boxed-div">
         <h3> Send The Server Your Posts! </h3>
         <form onSubmit={sendPosts}>
@@ -248,7 +284,34 @@ export default function App1({id, videoId, vididSQL}) {
           
         ))}
        
-        </div>
+        </div> ) : (
+          <div id="left">
+            <button onClick={() => setShowCurLoad(true)}>Back to Your Current Load of Posts </button>
+          <InfiniteScroll 
+              style = {{width: "100%"}}
+              dataLength={arr1.length} // number of items in the  list
+              hasMore={!!nexturl1} // boolean to determine if more data can lod
+              next={fetchMoreData1}
+              loader={<h4>Loading more posts...</h4>} // loader when fetching newdata
+              scrollThreshold={0.9}
+              scrollableTarget = "left"
+              endMessage={
+              <p style={{ textAlign: "center" }}>
+                  <b>All posts loaded</b>
+              </p>
+              }
+          >
+              
+              <br></br>
+              <h1 style={{ textAlign: "center" }}>Posts</h1>
+              <br></br>
+              {arr1.map((x) => (
+                  
+                  <SimplePost  style={{ textAlign: "center" }} key = {x.postid} url = {x.url} postid = {x.postid} ></SimplePost>
+              ))}
+          </InfiniteScroll>
+          </div>
+        )}
         <div className="right">
             <div id = "right-bottom">
 
