@@ -39,16 +39,30 @@
         {% for text in cat_list %}
             <a class="text-box" href= "/{{text["categoryid"]}}/">
             <div>{{ text["desc"] }}</div>
+            <div style="font-size: 10px; margin-top: 8px;"> last posting : {{ text["last_feed_activity"] }}</div>
+            <div style="font-size: 10px;"> last video change : {{ text["last_insdel"] }}</div>
             </a>
         {% endfor %}
     </div>
-    <div>
-        <form style="position:absolute; left: 8px; margin-top: 200px;" action="/" method="post" enctype="multipart/form-data">
+    <div style="text-align: center; center: 8px; margin-top: 50px;">
+        <form  action="/" method="post" enctype="multipart/form-data">
             <label>New Category: </label>
             <input type="text" name="New Category" required/>
             <input type="submit" name="create" value="create"/>
         </form>
+        <br></br>
+        <div style = "text-align: center; width: 75%; margin: auto;">
+            <h1>Recent Activity</h1>
+            {%for x in notif_list%}
+            <div style = "border: 3px solid rgb(0, 0, 0);  margin-top: -3px"> 
+            <h4>{{x.created}}</h4>
+            <div style = "margin-bottom: 15px;">{{x.desc}}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <p>(Shows up to 25)</p>
     </div>
+    
 
 </body>
 </html>

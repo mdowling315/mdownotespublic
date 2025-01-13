@@ -1,9 +1,16 @@
 import hashlib
 import uuid
 import flask
+import arrow
 import mdownotes
 import mdownotes.model
 
+
+def clean_notifs(cursor):
+    cursor.execute(
+        "DELETE FROM notifs "
+        "WHERE notifid NOT IN (SELECT notifid FROM notifs ORDER BY notifid DESC LIMIT 100)"
+        )
 
 @mdownotes.app.route('/', methods=["GET"])
 def show_index():
@@ -25,20 +32,43 @@ def show_index():
         ).fetchall()
     #print("y")
     #print(y)
+    clean_notifs(cursor)
+    d = cursor.execute(
+        "SELECT created, desc "
+        "FROM notifs " 
+        "ORDER BY notifid DESC "
+        "LIMIT 25"
+    ).fetchall()
+    for a in d:
+        a["created"] = arrow.get(a["created"]).humanize()
+    for a in y:
+        if  not (a["last_feed_activity"] is None):
+            a["last_feed_activity"] = arrow.get(a["last_feed_activity"]).humanize()
+        if  not (a["last_insdel"] is None):
+            a["last_insdel"] = arrow.get(a["last_insdel"]).humanize()
     context = {"logname": logname,
-               "cat_list": y}
+               "cat_list": y,
+               "notif_list": d}
     cursor.close()
     return flask.render_template("index.html", **context)
 
 @mdownotes.app.route('/', methods=["POST"])
 def create_category():
+    if "username" in flask.session:
+        logname = flask.session["username"]
+    else:
+        return flask.redirect("/login/")
     connection = mdownotes.model.get_db()
     cursor = connection.cursor()
+    d = flask.request.form["New Category"]
     cursor.execute(
         "INSERT INTO categories(desc) "
         "VALUES(?)",
-        (flask.request.form["New Category"],)
+        (d,)
         )
+    cursor.execute("INSERT INTO notifs(desc) "
+                "VALUES(?) ",
+            (f"{logname} created category '{d}'", ))
     cursor.close()
     return flask.redirect("/")
 
@@ -65,6 +95,9 @@ def show_category(cat_id):
         "WHERE categoryid = ?",
         (cat_id, )
         ).fetchall()
+    for a in z:
+        if not (a["last_activity"] is None):
+            a["last_activity"] = arrow.get(a["last_activity"]).humanize()
     context = {
         "category" : y[0]["desc"],
         "vid_list": z,
@@ -75,14 +108,18 @@ def show_category(cat_id):
 
 @mdownotes.app.route('/<cat_id>/', methods=["POST"])
 def make_video(cat_id):
+    if "username" in flask.session:
+        logname = flask.session["username"]
+    else:
+        return flask.redirect("/login/")
     connection = mdownotes.model.get_db()
     cursor = connection.cursor()
-    y = cursor.execute(
+    y1 = cursor.execute(
         "SELECT * FROM categories "
         "WHERE categoryid = ?",
         (cat_id, )
         ).fetchall()
-    d = len(y)
+    d = len(y1)
     if d == 0:
         flask.abort(404)
     assert(d == 1)
@@ -112,12 +149,20 @@ def make_video(cat_id):
         cursor.close()
       
         return flask.redirect(f"/{cat_id}/")
-    
+    d1 = flask.request.form["title"]
     cursor.execute(
             "INSERT INTO videos(url, title, categoryid) "
             "VALUES(?, ?, ?)",
-            (url, flask.request.form["title"], cat_id)
+            (url, d1, cat_id)
         )
+    cursor.execute( "UPDATE categories "                   
+    "SET last_insdel = CURRENT_TIMESTAMP "
+    "WHERE categoryid = ?", (cat_id)
+    )
+    cursor.execute("INSERT INTO notifs(desc) "
+                "VALUES(?) ",
+            (f"{logname} created video '{d1}' in category '{y1[0]["desc"]}'", ))
+    
     cursor.close()
   
     return flask.redirect(f"/{cat_id}/")
@@ -171,6 +216,10 @@ def login():
 
 @mdownotes.app.route('/delete_cat/', methods=["POST"])
 def delete_cat():
+    if "username" in flask.session:
+        logname = flask.session["username"]
+    else:
+        return flask.redirect("/login/")
     connection = mdownotes.model.get_db()
     cursor = connection.cursor()
     id = flask.request.form["id"]
@@ -178,11 +227,20 @@ def delete_cat():
         cursor.close()
        
         return flask.redirect(f"/{id}/")
-    cursor.execute(
-            "DELETE FROM categories "
-            "WHERE categoryid = ?",
-            (int(id),)
-        )
+    y = cursor.execute(
+        "SELECT desc FROM categories "
+        "WHERE categoryid = ?",
+        (int(id),)
+    ).fetchall()
+    if len(y) != 0:
+        cursor.execute(
+                "DELETE FROM categories "
+                "WHERE categoryid = ?",
+                (int(id),)
+            )
+        cursor.execute("INSERT INTO notifs(desc) "
+                "VALUES(?) ",
+                (f"{logname} deleted category '{y[0]["desc"]}'", ))
     cursor.close()
     
     return flask.redirect("/")
@@ -190,6 +248,10 @@ def delete_cat():
 
 @mdownotes.app.route('/delete_vid/', methods=["POST"])
 def delete_vid():
+    if "username" in flask.session:
+        logname = flask.session["username"]
+    else:
+        return flask.redirect("/login/")
     connection = mdownotes.model.get_db()
     cursor = connection.cursor()
     id = flask.request.form["id"]
@@ -197,11 +259,30 @@ def delete_vid():
     if flask.request.form["confirm"] != "Confirm Delete":
         cursor.close()
         return flask.redirect(f"/{id}/{nonce}")
-    cursor.execute(
-            "DELETE FROM videos "
+    y = cursor.execute(
+            "SELECT title FROM videos "
             "WHERE categoryid = ? "
             "AND url = ?",
             (id,nonce)
+    ).fetchall()
+    if len(y) != 0:
+        d = cursor.execute(
+            "SELECT desc FROM categories "
+            "WHERE categoryid = ? ",
+            (id,)
+        ).fetchall()
+        cursor.execute("INSERT INTO notifs(desc) "
+            "VALUES(?) ",
+            (f"{logname} deleted video '{y[0]["title"]}' from category '{d[0]["desc"]}'", ))
+        cursor.execute(
+                "DELETE FROM videos "
+                "WHERE categoryid = ? "
+                "AND url = ?",
+                (id,nonce)
+            )
+        cursor.execute( "UPDATE categories "                   
+        "SET last_insdel = CURRENT_TIMESTAMP "
+        "WHERE categoryid = ?", (id)
         )
     cursor.close()
   
@@ -267,6 +348,10 @@ def post_accounts():
             )
         # now we copy behavior of login operation
         flask.session["username"] = username
+        
+        cursor.execute("INSERT INTO notifs(desc) "
+            "VALUES(?) ",
+            (f"welcome {username} to the secret society!", ))
         cursor.close()
        
         return flask.redirect(p_tar(flask.request.args.get('target')))
@@ -286,6 +371,11 @@ def post_accounts():
         cursor.execute("DELETE FROM users WHERE username = ?", (logname,))
 
         flask.session.pop("username", None)
+        
+        cursor.execute("INSERT INTO notifs(desc) "
+            "VALUES(?) ",
+            (f"{logname} terminated account", ))
+        
         cursor.close()
        
         return flask.redirect(p_tar(flask.request.args.get('target')))

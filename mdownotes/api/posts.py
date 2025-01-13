@@ -132,7 +132,7 @@ def insert_batch():
         return flask.jsonify(**context), 403
     
     received_batch = flask.request.json.get('batch')
-    id = flask.request.args.get("vidid")
+    id = flask.request.args.get("vidid", type=int)
     # not doing any null checks on the values of the dictionary, so could have a dictionary with nulls in it
     # for simplicity now I dont care.
     if null_checker(received_batch, id):
@@ -143,7 +143,30 @@ def insert_batch():
         "INSERT into posts(text, owner, vid_timestamp, vidid) "
         "VALUES(?,?,?,?)", [(a["text"], logname, a["timestamp"], id) for a in received_batch]
     )
+    len1 = len(received_batch)
+    y = cursor.execute("SELECT title, categoryid FROM videos "
+            "WHERE vidid = ?",
+            (id, )).fetchall()
+    
+    d = cursor.execute("SELECT desc FROM categories "
+            "WHERE categoryid = ?",
+            (y[0]["categoryid"], )).fetchall()
+    cursor.execute("INSERT INTO notifs(desc) "
+            "VALUES(?) ",
+            (f"{logname} created {len1} posts in video '{y[0]["title"]}' from category '{d[0]["desc"]}'", ))
     # we dont return any data because the user should trigger a page reload when hitting this route.
+    
+    #update timestamps of edits
+    cursor.execute( "UPDATE categories "                   
+    "SET last_feed_activity = CURRENT_TIMESTAMP "
+    "WHERE categoryid = ?", (y[0]["categoryid"],)
+    )
+    cursor.execute( "UPDATE videos "                   
+    "SET last_activity = CURRENT_TIMESTAMP "
+    "WHERE vidid = ?", (id,)
+    )
+    
+    
     cursor.close() 
     return flask.Response(status=201)
 
@@ -166,9 +189,9 @@ def insert_comment():
         return flask.jsonify(**context), 400
     cursor = mdownotes.model.get_db().cursor()
     
-    cur = cursor.execute("SELECT owner FROM "
-                             "posts Where postid = ?", (postid,))
-    if len(cur.fetchall()) == 0:
+    cur1 = cursor.execute("SELECT owner, vidid FROM "
+                             "posts Where postid = ?", (postid,)).fetchall()
+    if len(cur1) == 0:
         context = {"message": "Not Found", "status_code": 404}
         cursor.close()
         return flask.jsonify(**context), 404
@@ -192,6 +215,33 @@ def insert_comment():
             "url": "/api/v1/comments/" + str(newid) + "/",
             "created": cur[0]["created"],
         }
+    
+    # notifs
+    y = cursor.execute("SELECT title, categoryid FROM videos "
+            "WHERE vidid = ?",
+            (cur1[0]["vidid"], )).fetchall()
+    d = cursor.execute("SELECT desc FROM categories "
+            "WHERE categoryid = ?",
+            (y[0]["categoryid"], )).fetchall()
+    if logname != cur1[0]["owner"]:
+        cursor.execute("INSERT INTO notifs(desc) "
+                "VALUES(?) ",
+                (f"{logname} commented on one of {cur1[0]["owner"]}'s posts at video '{y[0]["title"]}' from category '{d[0]["desc"]}'", ))
+    else:
+        cursor.execute("INSERT INTO notifs(desc) "
+                "VALUES(?) ",
+                (f"{logname} commented on one of their own posts at video '{y[0]["title"]}' from category '{d[0]["desc"]}'", ))
+    
+     #update timestamps of edits
+    cursor.execute( "UPDATE categories "                   
+    "SET last_feed_activity = CURRENT_TIMESTAMP "
+    "WHERE categoryid = ?", (y[0]["categoryid"],)
+    )
+    cursor.execute( "UPDATE videos "                   
+    "SET last_activity = CURRENT_TIMESTAMP "
+    "WHERE vidid = ?", (cur1[0]["vidid"],)
+    )
+    
     cursor.close()
     return flask.jsonify(**context)
     
@@ -210,7 +260,7 @@ def delete_post():
         return flask.jsonify(**context), 400
     cursor = mdownotes.model.get_db().cursor()
     p = cursor.execute(
-        "SELECT owner FROM posts "
+        "SELECT owner, vidid FROM posts "
         "WHERE postid = ?", (postid,)
     ).fetchall()
     if len(p) == 0:
@@ -226,6 +276,8 @@ def delete_post():
         "DELETE FROM posts "
         "WHERE postid = ?", (postid,)
     )
+    
+    
     cursor.close()
     return flask.Response(status=204)
 

@@ -23,6 +23,12 @@
             text-align: center;
             box-sizing: border-box;
         }
+        .text-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
         .text-box:nth-child(3n) {
             margin-right: 0;  /* Remove margin for every third box */
         }
@@ -39,13 +45,15 @@
     <br></br>
     <div class="text-box-container">
         {% for vid in vid_list %}
-            <a class="text-box" href= "/{{categoryid}}/{{vid["url"]}}/">
-            <div>{{ vid["title"] }}</div>
+            <a style = "text-decoration: none; " class="text-box" href= "/{{categoryid}}/{{vid["url"]}}/">
+            <div >{{ vid["title"] }}</div>
+            
             <img src="https://img.youtube.com/vi/{{vid["url"]}}/hqdefault.jpg" alt="Couldn't find image :(">
+            <div style = "color: black; margin-top: 8px;">last posting: {{vid["last_activity"]}}</div>
             </a>
         {% endfor %}
     </div>
-    <div style="position:absolute; left: 8px; margin-top: 200px;">
+    <div style="position:absolute; left: 8px; margin-top: 50px;">
         <form style="position:absolute; left:" action="/{{categoryid}}/" method="post" enctype="multipart/form-data">
             <label>Add Video: </label>
             <label>Video URL: </label>

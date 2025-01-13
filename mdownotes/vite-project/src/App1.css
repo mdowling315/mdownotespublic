@@ -129,7 +129,7 @@ form {
 #left .left-align,
 #left .center-align,
 #left .right-align {
-    padding: 8px 12px; /* Add padding inside the <p> tags */
+    padding: 8px 6px; /* Add padding inside the <p> tags */
 }
 button {
     padding: 10px 20px; /* Add padding to the button */
