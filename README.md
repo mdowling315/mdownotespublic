@@ -28,7 +28,7 @@ Web application to create simpler and quicker comments spanned throughout youtub
    git clone git@github.com:mdowling315/mdownotespublic.git
    cd my-awesome-web-app
 
-2. Install backend dependencies
+2. Install frontend/backend dependencies
 
     ```bash
     python -m venv env; source env/bin/activate # (create an environment, optional)
