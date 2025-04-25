@@ -295,9 +295,10 @@ def delete_vid():
 @mdownotes.app.route("/accounts/", methods=["POST"])
 def post_accounts():
     """POST METHOD: Accounts."""
-    
+    (print("hi"))
 
     if flask.request.form["operation"] == "login":
+        (print("hi"))
         username = flask.request.form["username"]
         password = flask.request.form["password"]
 

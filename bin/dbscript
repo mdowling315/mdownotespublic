@@ -2,7 +2,6 @@
 # mdownotesdb
 
 # Stop on errors
-# See https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
 set -Eeuo pipefail
 
 # Sanity check command line options
@@ -22,10 +21,8 @@ case $1 in
       echo "Error: database already exists"
     else
       set -x
-      # mkdir -p var/uploads
       sqlite3 var/mdownotes.sqlite3 < sql/schema.sql
       sqlite3 var/mdownotes.sqlite3 < sql/data.sql
-      # cp sql/uploads/* var/uploads/
     fi
     ;;
 
@@ -37,10 +34,9 @@ case $1 in
   "reset")
     set -x
     rm -rf var/mdownotes.sqlite3 # var/uploads
-    # mkdir -p var/uploads
     sqlite3 var/mdownotes.sqlite3 < sql/schema.sql
     sqlite3 var/mdownotes.sqlite3 < sql/data.sql
-    # cp sql/uploads/* var/uploads/
+   
     ;;
 
   "dump")

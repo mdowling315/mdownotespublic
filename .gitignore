@@ -5,3 +5,5 @@ session.json
 *.pem
 *.js.map
 var/mdownotes.sqlite3
+mdownotesdeploy.pem
+mdownotes/views/__pycache__/
