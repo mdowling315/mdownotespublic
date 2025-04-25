@@ -25,13 +25,13 @@ Web application to create simpler and quicker comments spanned throughout youtub
 1. Clone the repo:
 
    ```bash
-   git clone https://github.com/yourusername/my-awesome-web-app.git
+   git clone git@github.com:mdowling315/mdownotespublic.git
    cd my-awesome-web-app
 
 2. Install backend dependencies
 
-    cd mdownotes/
-    python -m venv env; source env/bin/activate (create an environment, optional)
+    ```bash
+    python -m venv env; source env/bin/activate # (create an environment, optional)
     ./bin/install.sh
 
 3. Run Locally
