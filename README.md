@@ -26,7 +26,7 @@ Web application to create simpler and quicker comments spanned throughout youtub
 
    ```bash
    git clone git@github.com:mdowling315/mdownotespublic.git
-   cd my-awesome-web-app
+   cd mdownotespublic
 
 2. Install frontend/backend dependencies
 
