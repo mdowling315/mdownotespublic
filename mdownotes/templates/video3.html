@@ -16,10 +16,19 @@
         <script>
             const VIDEO_ID = "{{VIDEO_ID}}"; 
             window.VIDEO_ID = VIDEO_ID;
-            const id5 =  {{id}}
+            const id5 =  {{id}};
             window.id5 = id5;
-            const vididSQL = {{vididSQL}}
-            window.vididSQL = vididSQL
+            const vididSQL = {{vididSQL}};
+            window.vididSQL = vididSQL;
+            const comments_public = {{comments_public}};
+            console.log("HERE IT IS");
+            console.log(comments_public);
+            window.comments_public = comments_public;
+            
+            const ownsthis = {{ownsthis}};
+            console.log("HERE IT IS");
+            console.log(ownsthis);
+            window.ownsthis = ownsthis;
         </script>
 
          <!-- Wait for the DOM to be loaded before loading the React app -->

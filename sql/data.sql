@@ -3,12 +3,12 @@ VALUES('chickens','sha512$34e94a05cdf247db92a84bc590950336$7eaca2b4169e042120f01
 INSERT INTO categories(desc)
 VALUES
     ('Music');
-INSERT INTO videos(url,title, categoryid)
+INSERT INTO videos(url,title, categoryid, owner)
 VALUES
-    ('zwzMBSsqr_0', 'Time (from "Inception") \\ Hans Zimmer \\ Jacobs Piano', 1);
-INSERT INTO videos(url,title, categoryid)
+    ('zwzMBSsqr_0', 'Time (from "Inception") \\ Hans Zimmer \\ Jacobs Piano', 1, "chickens");
+INSERT INTO videos(url,title, categoryid, owner)
 VALUES
-    ('6qTghUgMOeY', 'Impossible', 1);
-INSERT INTO videos(url,title, categoryid)
+    ('6qTghUgMOeY', 'Impossible', 1, "chickens");
+INSERT INTO videos(url,title, categoryid, owner)
 VALUES
-    ('G-I9csAflBs', 'Welcome To The Black Parade', 1);
+    ('G-I9csAflBs', 'Welcome To The Black Parade', 1, "chickens");

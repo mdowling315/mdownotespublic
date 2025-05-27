@@ -80,7 +80,24 @@ def get_next_posts():
         return flask.jsonify(**context), 400
     
     cursor = mdownotes.model.get_db().cursor()
-    (prmstr, posts) = paginate(size, timeint, minid, vidid, cursor)
+
+    # grab if the video comments are public or not
+    cur = cursor.execute(
+        "SELECT comments_public FROM videos "
+        "WHERE vidid = ?",
+        (vidid,)
+    ).fetchall()
+    if len(cur) == 0:
+        context = {"message": "Not Found", "status_code": 404}
+        cursor.close()
+        return flask.jsonify(**context), 404
+    if cur[0]["comments_public"] == 0:
+        # comments are not public, so we return only the user's posts
+        name = logname
+    else:
+        name = ""
+
+    (prmstr, posts) = paginate(size, timeint, minid, vidid, name, cursor)
     for post in posts:
         post["url"] = "/api/posts/" + str(post["postid"]) + "/"
     
@@ -90,19 +107,35 @@ def get_next_posts():
     return flask.jsonify(**context)
     
     
-def paginate(size: int, timeint: int, minid: int, vidid:int, cursor):
+def paginate(size: int, timeint: int, minid: int, vidid:int, name:str, cursor):
     """Paginate posts from database."""
-    cur = cursor.execute(
-    "SELECT vid_timestamp, postid FROM posts "
-    "WHERE vidid = ? AND vid_timestamp = ? AND postid > ? ORDER BY postid ASC LIMIT ?",
-    (vidid, timeint, minid, size),
-    ).fetchall()
+
+    if name == "":
+        cur = cursor.execute(
+        "SELECT vid_timestamp, postid FROM posts "
+        "WHERE vidid = ? AND vid_timestamp = ? AND postid > ? ORDER BY postid ASC LIMIT ?",
+        (vidid, timeint, minid, size),
+        ).fetchall()
+    else:
+        cur = cursor.execute(
+        "SELECT vid_timestamp, postid FROM posts "
+        "WHERE vidid = ? AND vid_timestamp = ? AND postid > ? AND owner = ? ORDER BY postid ASC LIMIT ?",
+        (vidid, timeint, minid, name, size),
+        ).fetchall()
+
     rest = size - len(cur)
     if rest != 0:
-        cur = cur + cursor.execute(
+        if name == "":
+            cur = cur + cursor.execute(
             "SELECT vid_timestamp, postid FROM posts "
             "WHERE vidid = ? AND vid_timestamp > ? ORDER BY vid_timestamp ASC, postid ASC LIMIT ?",
             (vidid, timeint, rest),
+            ).fetchall()
+        else:
+            cur = cur + cursor.execute(
+            "SELECT vid_timestamp, postid FROM posts "
+            "WHERE vidid = ? AND vid_timestamp > ? AND owner = ? ORDER BY vid_timestamp ASC, postid ASC LIMIT ?",
+            (vidid, timeint,name, rest),
             ).fetchall()
     assert(len(cur) <= size)
     if (len(cur) < size):
@@ -139,6 +172,7 @@ def insert_batch():
         context = {"message": "Bad Request", "status_code": 400}
         return flask.jsonify(**context), 400
     cursor = mdownotes.model.get_db().cursor()
+    print([(a["text"], logname, a["timestamp"], id) for a in received_batch])
     cursor.executemany(
         "INSERT into posts(text, owner, vid_timestamp, vidid) "
         "VALUES(?,?,?,?)", [(a["text"], logname, a["timestamp"], id) for a in received_batch]
@@ -321,3 +355,33 @@ def null_checker(*args):
         if arg is None:
             return True
     return False
+
+# this function will set the comments public or private for a video
+@mdownotes.app.route("/api/videos/comments/", methods=["PUT"])
+def set_comments():
+    if "username" in flask.session:
+        logname = flask.session["username"]
+    else:
+        context = {"message": "Forbidden", "status_code": 403}
+        return flask.jsonify(**context), 403
+    
+    vidid = flask.request.args.get("vidid", type=int)
+    public = flask.request.args.get("public", default=False, type=int)
+    if public != 0 and public != 1:
+        context = {"message": "Bad Request", "status_code": 400}
+        return flask.jsonify(**context), 400
+    if null_checker(vidid):
+        context = {"message": "Bad Request", "status_code": 400}
+        return flask.jsonify(**context), 400
+    
+    cursor = mdownotes.model.get_db().cursor()
+    cursor.execute(
+        "UPDATE videos "
+        "SET comments_public = ? "
+        "WHERE vidid = ? AND owner = ?",
+        (public, vidid, logname)
+    )
+    print(public, vidid, logname)
+    
+    cursor.close()
+    return flask.Response(status=204)

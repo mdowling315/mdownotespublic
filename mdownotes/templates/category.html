@@ -50,6 +50,8 @@
             
             <img src="https://img.youtube.com/vi/{{vid["url"]}}/hqdefault.jpg" alt="Couldn't find image :(">
             <div style = "color: black; margin-top: 8px;">last posting: {{vid["last_activity"]}}</div>
+            <div style = "color: black; margin-top: 8px;">owner: {{vid["owner"]}}</div>
+            <div style = "color: black; margin-top: 8px;">comments public: {{ "false" if vid["comments_public"] == 0 else "true" }}</div>
             </a>
         {% endfor %}
     </div>

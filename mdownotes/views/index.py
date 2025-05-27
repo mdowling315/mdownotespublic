@@ -151,9 +151,9 @@ def make_video(cat_id):
         return flask.redirect(f"/{cat_id}/")
     d1 = flask.request.form["title"]
     cursor.execute(
-            "INSERT INTO videos(url, title, categoryid) "
-            "VALUES(?, ?, ?)",
-            (url, d1, cat_id)
+            "INSERT INTO videos(url, title, categoryid, owner) "
+            "VALUES(?, ?, ?, ?)",
+            (url, d1, cat_id, logname)
         )
     cursor.execute( "UPDATE categories "                   
     "SET last_insdel = CURRENT_TIMESTAMP "
@@ -196,12 +196,17 @@ def serve_video_page(cat_id, nonce):
     if d == 0:
         flask.abort(404)
     assert(d == 1)
+    ##print("HERE IS WHAT WE GOT")
+    #print(z[0]["owner"])
+    #print(logname)
     context = {
         "VIDEO_ID": nonce,
         "title": z[0]["title"],
         "id": cat_id,
         "category": y[0]["desc"],
-        "vididSQL": z[0]["vidid"]
+        "vididSQL": z[0]["vidid"],
+        "ownsthis": int(z[0]["owner"] == logname),
+        "comments_public": z[0]["comments_public"]
     }
     cursor.close()
     

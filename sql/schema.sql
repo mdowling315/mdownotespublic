@@ -29,6 +29,8 @@ CREATE TABLE videos (
     title VARCHAR(1024) NOT NULL,
     categoryid INTEGER NOT NULL,
     last_activity DATETIME DEFAULT NULL,
+    owner VARCHAR(20) NOT NULL,
+    comments_public INTEGER DEFAULT 0,
     FOREIGN KEY (categoryid) REFERENCES categories(categoryid) ON DELETE CASCADE
 );
 

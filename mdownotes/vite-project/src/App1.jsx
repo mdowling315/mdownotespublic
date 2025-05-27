@@ -5,7 +5,7 @@ import './App1.css'
 import Post from "./Post.jsx";
 import SimplePost from "./SimplePost.jsx";
 
-export default function App1({id, videoId, vididSQL}) {
+export default function App1({id, videoId, vididSQL, comments_public, ownsthis}) {
     const [player, setPlayer] = useState(null);
     const [timestamp, setTimestamp] = useState(null);
     const [cur_load, setCurLoad] = useState([]);
@@ -249,6 +249,21 @@ export default function App1({id, videoId, vididSQL}) {
         });
       }
 
+      const toggleReveal = (bool1) => {
+        fetch(`/api/videos/comments/?vidid=${vididSQL}&public=${bool1}`, {
+        method: "PUT",
+        credentials: "same-origin",
+        })
+        .then((response) => {
+            if (response.ok) {
+            window.location.reload();
+            return;
+            }
+            throw new Error("Failed to fetch resource");
+        })
+        .catch((error) => console.log(error))
+      }
+
   
     const handleKeyPress = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -381,6 +396,26 @@ export default function App1({id, videoId, vididSQL}) {
                       <br></br>
                       <h1 style={{ textAlign: "center" }}>Posts</h1>
                       <br></br>
+                       {comments_public ? (
+                        <>
+                          <h3 style={{ textAlign: "center" }}>
+                            This video is public, so posts are visible to everyone
+                          </h3>
+                         
+                          {ownsthis ? (<button onClick={() => toggleReveal(0)}> Make Private </button>):(null)}
+                          <br />
+                        </>
+                      ) : (
+                        <>
+                          <h3 style={{ textAlign: "center" }}>
+                            This video is set private, so posts are only visible to you
+                          </h3>
+                          
+                          {ownsthis ? (<button onClick={() => toggleReveal(1)}> Make Public </button>):(null)}
+                          <br />
+                        </>
+                      )}
+                      
                       {arr.map((x) => (
                           <Post  style={{ textAlign: "center" }} key = {x.postid} url = {x.url} postid = {x.postid} Del_post={delete_post_net}></Post>
                       ))}
@@ -388,8 +423,28 @@ export default function App1({id, videoId, vididSQL}) {
                     <div className = "flexboxagain">
                     <br></br>
                     <h1 style={{ textAlign: "center" }}>posts are hidden by default, click to reveal</h1>
-                    <br></br>
+                   
+                  {//ownsthis ? (): ()
+                  }
                     <button onClick={() => setReveal(true)}> Show Posts </button>
+                     {comments_public ? (
+                    <>
+                      <h3 style={{ textAlign: "center" }}>
+                        This video is public, so posts are visible to everyone
+                      </h3>
+                      {ownsthis ? (<button onClick={() => toggleReveal(0)}> Make Private </button>):(null)}
+                      <br />
+                    </>
+                  ) : (
+                    <>
+                      <h3 style={{ textAlign: "center" }}>
+                        This video is set private, so posts are only visible to you
+                      </h3>
+                      
+                      {ownsthis ? (<button onClick={() => toggleReveal(1)}> Make Public </button>):(null)}
+                      <br />
+                    </>
+                  )}
                     </div>
                   )) : (
                       <h4> fetching... </h4>
